@@ -1,12 +1,9 @@
 name: Build Hugo - WITH CACHE
-
 on:
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out the code from https://github.com/gohugoio/hugo.git
         uses: actions/checkout@v2
@@ -14,26 +11,23 @@ jobs:
           repository: gohugoio/hugo
           ref: stable
 
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.17
-
-      - name: Cache Go modules
+      - name: Setup the cache after checkout to build a cache key using go.sum
         uses: actions/cache@v2
         with:
           path: |
             ~/.cache/go-build
             ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
 
-      - name: Build the Hugo executable
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+
+      - name: Build the hugo executable
         run: go install --tags extended
 
-      - name: Upload Hugo executable
-        uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: hugo
-          path: ~/go/bin/hugo
+          path: /home/runner/go/bin/hugo
